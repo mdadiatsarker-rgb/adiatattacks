@@ -6,7 +6,7 @@ const NuclearAttack: React.FC = () => {
   const [isAttacking, setIsAttacking] = useState<boolean>(false);
   const [strikeCount, setStrikeCount] = useState<number>(0);
   const [attackPower, setAttackPower] = useState<number>(100);
-  const [targetUrl, setTargetUrl] = useState<string>('http://test-site.com');
+  const [targetUrl, setTargetUrl] = useState<string>('');
   const [selectedCard, setSelectedCard] = useState<number>(0);
   const [health, setHealth] = useState<number>(100);
   const [radiation, setRadiation] = useState<number>(0);
