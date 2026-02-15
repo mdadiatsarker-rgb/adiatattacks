@@ -6,7 +6,7 @@ const NuclearAttackCommand = () => {
   const [isAttacking, setIsAttacking] = useState(false);
   const [strikeCount, setStrikeCount] = useState(0);
   const [attackPower, setAttackPower] = useState(100);
-  const [targetUrl, setTargetUrl] = useState('http://test-site.com');
+  const [targetUrl, setTargetUrl] = useState('');
   const [health, setHealth] = useState(100);
   const [ttd, setTtd] = useState(0);
   const [radiation, setRadiation] = useState("0MB");
