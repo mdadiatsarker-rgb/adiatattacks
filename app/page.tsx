@@ -10,7 +10,7 @@ export default function AdiatXPanel() {
 
   // KeyAuth Config
   const config = {
-    name: "ADIAT X PANEL",
+    name: "ADIAT X ",
     ownerid: "OaREGqwvH6",
     secret: "03ca68797371bf02b0274eb15c2f1dd03cef0acbb3dfc48c4b6f17366fb99d29",
     version: "1.0"
@@ -191,7 +191,7 @@ export default function AdiatXPanel() {
       <div className="corner corner-br"></div>
 
       <div className="login-card">
-        <h1 className="glitch">ADIAT X PANEL</h1>
+        <h1 className="glitch">ADIAT X ATTACK</h1>
         <span className="version-tag">核・KEYAUTH EXTREME V2.0</span>
         
         <input 
@@ -218,7 +218,7 @@ export default function AdiatXPanel() {
             ⎔ BUY ACCESS / JOIN TG ⎔
           </a>
           <div style={{ fontSize: '8px', color: '#3a1a1a', marginTop: '16px', letterSpacing: '3px' }}>
-            ☢️ ADIAT NUCLEAR SYSTEMS • EXTREME EDITION ☢️
+            ☢️ ADIAT NUCLEAR SYSTEMS • EXTREME ATTACK ☢️
           </div>
         </div>
       </div>

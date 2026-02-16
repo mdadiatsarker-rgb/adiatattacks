@@ -153,7 +153,7 @@ export default function NuclearAttackCommand() {
 
       <div className="control-panel">
         <div className="header">
-          <h1>💀 NUCLEAR ATTACK MODE 💀</h1>
+          <h1>💀 ADIAT NUCLEAR ATTACK MODE 💀</h1>
           <div className="warning">
             {health <= 0 && strikeCount > 100000 ? '💀 TARGET DESTROYED - MISSION COMPLETE 💀' : `⚠️ WARNING: EXTREME POWER - TARGET WILL CRASH IN SECONDS ⚠️`}
           </div>
