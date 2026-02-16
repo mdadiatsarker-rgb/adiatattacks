@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdiatXPanel() {
@@ -10,57 +10,47 @@ export default function AdiatXPanel() {
   const [statusText, setStatusText] = useState('⚡ STATUS: ARMED ⚡');
   const [statusStyle, setStatusStyle] = useState({ color: '#ff8888', textShadow: '0 0 10px red' });
 
-  // KeyAuth Config
-  const config = {
-    name: "ADIAT X PANEL",
-    ownerid: "OaREGqwvH6",
-    secret: "03ca68797371bf02b0274eb15c2f1dd03cef0acbb3dfc48c4b6f17366fb99d29",
-    version: "1.0"
-  };
-
   const login = async () => {
     if (!username || !password) {
       alert("⛔ ERROR: CREDENTIALS MISSING ⛔");
       return;
     }
 
-    setStatusText("🜁 CONNECTING TO SECURE NODE ...");
+    setStatusText("🜁 CONNECTING TO MONGODB NODE ...");
     setStatusStyle({ color: "#ffaa00", textShadow: "0 0 15px orange" });
 
     try {
-      // 1. INIT
-      const initUrl = `https://keyauth.win/api/1.2/?type=init&name=${encodeURIComponent(config.name)}&ownerid=${config.ownerid}&ver=${config.version}&_=${Date.now()}`;
-      const initRes = await fetch(initUrl, { cache: 'no-store' });
-      const initData = await initRes.json();
+      // আমাদের নিজস্ব API-তে ডাটা পাঠাচ্ছি
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
 
-      if (initData.success) {
-        setStatusText("🜂 AUTHENTICATING ...");
-        setStatusStyle({ color: "yellow", textShadow: "0 0 10px yellow" });
+      const data = await response.json();
 
-        // 2. LOGIN
-        const logUrl = `https://keyauth.win/api/1.2/?type=login&username=${encodeURIComponent(username)}&pass=${encodeURIComponent(password)}&sessionid=${initData.sessionid}&name=${encodeURIComponent(config.name)}&ownerid=${config.ownerid}&_=${Date.now()}`;
-        const logRes = await fetch(logUrl, { cache: 'no-store' });
-        const logData = await logRes.json();
+      if (response.ok && data.message === "SUCCESS") {
+        setStatusText("✔ ACCESS GRANTED! 核 REDIRECTING...");
+        setStatusStyle({ color: "#00ff88", textShadow: "0 0 20px lime" });
+        
+        // সেশন সেভ করা
+        localStorage.setItem("adiatSession", btoa("auth:" + Date.now()));
 
-        if (logData.success) {
-          setStatusText("✔ ACCESS GRANTED! 核 REDIRECTING...");
-          setStatusStyle({ color: "#00ff88", textShadow: "0 0 20px lime" });
-          
-          localStorage.setItem("adiatSession", btoa("auth:" + Date.now()));
-
-          setTimeout(() => {
-            router.push('/hack'); 
-          }, 1500);
-        } else {
-          setStatusText("✖ DENIED: " + (logData.message || "INVALID CREDENTIALS"));
-          setStatusStyle({ color: "#ff0000", textShadow: "0 0 20px red" });
-        }
+        setTimeout(() => {
+          // যদি অ্যাডমিন হয় তবে অ্যাডমিন প্যানেলে পাঠাবে, নাহলে হ্যাক পেজে
+          if(data.role === 'admin') {
+            router.push('/admin'); 
+          } else {
+            router.push('/hack');
+          }
+        }, 1500);
       } else {
-        setStatusText("✖ SERVER ERROR: " + (initData.message || "INIT FAIL"));
-        setStatusStyle({ color: "red", textShadow: "0 0 10px red" });
+        // যদি ব্যান থাকে বা পাসওয়ার্ড ভুল হয়
+        setStatusText("✖ " + (data.message || "INVALID CREDENTIALS"));
+        setStatusStyle({ color: "#ff0000", textShadow: "0 0 20px red" });
       }
     } catch (err) {
-      setStatusText("✖ NETWORK TIMEOUT / NODE OFFLINE");
+      setStatusText("✖ DATABASE NODE OFFLINE");
       setStatusStyle({ color: "#ff4444", textShadow: "0 0 10px red" });
     }
   };
@@ -142,7 +132,7 @@ export default function AdiatXPanel() {
 
       <div className="login-card">
         <h1 className="glitch">ADIAT X ATTACK</h1>
-        <span className="version-tag">核・KEYAUTH EXTREME V2.0</span>
+        <span className="version-tag">核・MONGODB DATABASE V2.0</span>
         
         <input 
           type="text" 
