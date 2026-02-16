@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 
 export default function AdiatXPanel() {
-  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [statusText, setStatusText] = useState('⚡ STATUS: ARMED ⚡');
   const [statusStyle, setStatusStyle] = useState({ color: '#ff8888', textShadow: '0 0 10px red' });
+
+  useEffect(() => {
+    sessionStorage.clear(); // পেজ লোড হলে পুরনো সেশন মুছে যাবে
+  }, []);
 
   const login = async () => {
     if (!username || !password) {
@@ -20,7 +22,6 @@ export default function AdiatXPanel() {
     setStatusStyle({ color: "#ffaa00", textShadow: "0 0 15px orange" });
 
     try {
-      // আমাদের নিজস্ব API-তে ডাটা পাঠাচ্ছি
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,23 +30,18 @@ export default function AdiatXPanel() {
 
       const data = await response.json();
 
-      if (response.ok && data.message === "SUCCESS") {
+      if (response.ok && data.message.toUpperCase() === "SUCCESS") {
         setStatusText("✔ ACCESS GRANTED! 核 REDIRECTING...");
         setStatusStyle({ color: "#00ff88", textShadow: "0 0 20px lime" });
         
-        // সেশন সেভ করা
-        localStorage.setItem("adiatSession", btoa("auth:" + Date.now()));
+        // সেশন চাবি সেট করা
+        sessionStorage.setItem("isAdiatAuth", "true");
 
         setTimeout(() => {
-          // যদি অ্যাডমিন হয় তবে অ্যাডমিন প্যানেলে পাঠাবে, নাহলে হ্যাক পেজে
-          if(data.role === 'admin') {
-            router.push('/admin'); 
-          } else {
-            router.push('/hack');
-          }
-        }, 1500);
+          // ফোর্সফুলি রিডাইরেক্ট
+          window.location.replace('/hack'); 
+        }, 1200);
       } else {
-        // যদি ব্যান থাকে বা পাসওয়ার্ড ভুল হয়
         setStatusText("✖ " + (data.message || "INVALID CREDENTIALS"));
         setStatusStyle({ color: "#ff0000", textShadow: "0 0 20px red" });
       }
@@ -60,14 +56,9 @@ export default function AdiatXPanel() {
       <style dangerouslySetInnerHTML={{ __html: `
         .main-wrapper {
           background: radial-gradient(circle at 20% 30%, #1a0000, #000000);
-          color: #ff0000;
-          font-family: 'Courier New', monospace;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          overflow: hidden;
-          position: relative;
+          color: #ff0000; font-family: 'Courier New', monospace;
+          display: flex; justify-content: center; align-items: center;
+          height: 100vh; overflow: hidden; position: relative;
         }
         .main-wrapper::before {
           content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
