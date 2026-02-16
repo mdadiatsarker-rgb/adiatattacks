@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AdiatXPanel() {
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [statusText, setStatusText] = useState('⚡ STATUS: ARMED ⚡');
@@ -15,58 +17,6 @@ export default function AdiatXPanel() {
     secret: "03ca68797371bf02b0274eb15c2f1dd03cef0acbb3dfc48c4b6f17366fb99d29",
     version: "1.0"
   };
-
-  useEffect(() => {
-    // ---------- EXTREME ANTI TAMPER & DEBUG ----------
-    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
-    const handleSelectStart = (e: Event) => e.preventDefault();
-    const handleCopyCut = (e: ClipboardEvent) => e.preventDefault();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S
-      if (
-        e.keyCode === 123 ||
-        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
-        (e.ctrlKey && e.keyCode === 85) ||
-        (e.ctrlKey && e.keyCode === 83)
-      ) {
-        e.preventDefault();
-        return false;
-      }
-    };
-
-    document.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('selectstart', handleSelectStart);
-    document.addEventListener('copy', handleCopyCut);
-    document.addEventListener('cut', handleCopyCut);
-
-    // DevTools Detection logic
-    const protectInterval = setInterval(() => {
-      const before = new Date().getTime();
-      console.log('');
-      const after = new Date().getTime();
-      if (after - before > 100) {
-        document.body.style.opacity = '0.8';
-      }
-    }, 800);
-
-    // Override console clear
-    const originalClear = console.clear;
-    console.clear = () => {
-      console.warn('[PROTECTED] Console cannot be cleared.');
-    };
-
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu);
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('selectstart', handleSelectStart);
-      document.removeEventListener('copy', handleCopyCut);
-      document.removeEventListener('cut', handleCopyCut);
-      clearInterval(protectInterval);
-      console.clear = originalClear;
-    };
-  }, []);
 
   const login = async () => {
     if (!username || !password) {
@@ -99,7 +49,7 @@ export default function AdiatXPanel() {
           localStorage.setItem("adiatSession", btoa("auth:" + Date.now()));
 
           setTimeout(() => {
-            window.location.href = "/hack"; 
+            router.push('/hack'); 
           }, 1500);
         } else {
           setStatusText("✖ DENIED: " + (logData.message || "INVALID CREDENTIALS"));
