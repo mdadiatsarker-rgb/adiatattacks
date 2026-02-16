@@ -10,7 +10,7 @@ export default function AdiatXPanel() {
 
   // KeyAuth Config
   const config = {
-    name: "ADIAT X ",
+    name: "ADIAT X PANEL",
     ownerid: "OaREGqwvH6",
     secret: "03ca68797371bf02b0274eb15c2f1dd03cef0acbb3dfc48c4b6f17366fb99d29",
     version: "1.0"
